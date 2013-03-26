@@ -582,6 +582,44 @@ tests.SUBSCRIBE = function () {
     });
 };
 
+tests.UNSUB_EMPTY = function () {
+  // test situation where unsubscribe reply[1] is null
+  var name = "UNSUB_EMPTY";
+  client3.unsubscribe(); // unsubscribe from all so can test null
+  client3.unsubscribe(); // reply[1] will be null
+  next(name);
+};
+
+tests.PUNSUB_EMPTY = function () {
+  // test situation where punsubscribe reply[1] is null
+  var name = "PUNSUB_EMPTY";
+  client3.punsubscribe(); // punsubscribe from all so can test null
+  client3.punsubscribe(); // reply[1] will be null
+  next(name);
+};
+
+tests.UNSUB_EMPTY_CB = function () {
+  // test situation where unsubscribe reply[1] is null
+  var name = "UNSUB_EMPTY_CB";
+  client3.unsubscribe(); // unsubscribe from all so can test null
+  client3.unsubscribe(function (err, results) {
+      // reply[1] will be null
+      assert.strictEqual(null, err, "unexpected error: " + err);
+      next(name);
+  });
+};
+
+tests.PUNSUB_EMPTY_CB = function () {
+  // test situation where punsubscribe reply[1] is null
+  var name = "PUNSUB_EMPTY_CB";
+  client3.punsubscribe(); // punsubscribe from all so can test null
+  client3.punsubscribe(function (err, results) {
+      // reply[1] will be null
+      assert.strictEqual(null, err, "unexpected error: " + err);
+      next(name);
+  });
+};
+
 tests.SUBSCRIBE_QUIT = function () {
     var name = "SUBSCRIBE_QUIT";
     client3.on("end", function () {
@@ -619,7 +657,7 @@ tests.TYPE = function () {
     client.sadd(["set key", "should be a set"], require_number_any(name));
     client.zadd(["zset key", "10.0", "should be a zset"], require_number_any(name));
     client.hset(["hash key", "hashtest", "should be a hash"], require_number_any(0, name));
-    
+
     client.TYPE(["string key"], require_string("string", name));
     client.TYPE(["list key"], require_string("list", name));
     client.TYPE(["set key"], require_string("set", name));
@@ -799,7 +837,7 @@ tests.UTF8 = function () {
 
 tests.SADD = function () {
     var name = "SADD";
-    
+
     client.del('set0');
     client.sadd('set0', 'member0', require_number(1, name));
     client.sadd('set0', 'member0', last(name, require_number(0, name)));
@@ -807,7 +845,7 @@ tests.SADD = function () {
 
 tests.SADD2 = function () {
     var name = "SADD2";
-    
+
     client.del("set0");
     client.sadd("set0", ["member0", "member1", "member2"], require_number(3, name));
     client.smembers("set0", function (err, res) {
@@ -821,7 +859,7 @@ tests.SADD2 = function () {
 
 tests.SISMEMBER = function () {
     var name = "SISMEMBER";
-    
+
     client.del('set0');
     client.sadd('set0', 'member0', require_number(1, name));
     client.sismember('set0', 'member0', require_number(1, name));
@@ -830,7 +868,7 @@ tests.SISMEMBER = function () {
 
 tests.SCARD = function () {
     var name = "SCARD";
-    
+
     client.del('set0');
     client.sadd('set0', 'member0', require_number(1, name));
     client.scard('set0', require_number(1, name));
@@ -850,7 +888,7 @@ tests.SREM = function () {
 
 tests.SPOP = function () {
     var name = "SPOP";
-    
+
     client.del('zzz');
     client.sadd('zzz', 'member0', require_number(1, name));
     client.scard('zzz', require_number(1, name));
@@ -867,7 +905,7 @@ tests.SPOP = function () {
 
 tests.SDIFF = function () {
     var name = "SDIFF";
-    
+
     client.del('foo');
     client.sadd('foo', 'x', require_number(1, name));
     client.sadd('foo', 'a', require_number(1, name));
@@ -893,7 +931,7 @@ tests.SDIFF = function () {
 
 tests.SDIFFSTORE = function () {
     var name = "SDIFFSTORE";
-    
+
     client.del('foo');
     client.del('bar');
     client.del('baz');
@@ -926,7 +964,7 @@ tests.SDIFFSTORE = function () {
 
 tests.SMEMBERS = function () {
     var name = "SMEMBERS";
-    
+
     client.del('foo');
     client.sadd('foo', 'x', require_number(1, name));
 
@@ -970,7 +1008,7 @@ tests.SINTER = function () {
     client.del('sa');
     client.del('sb');
     client.del('sc');
-    
+
     client.sadd('sa', 'a', require_number(1, name));
     client.sadd('sa', 'b', require_number(1, name));
     client.sadd('sa', 'c', require_number(1, name));
@@ -1052,11 +1090,11 @@ tests.SINTERSTORE = function () {
 
 tests.SUNION = function () {
     var name = "SUNION";
-    
+
     client.del('sa');
     client.del('sb');
     client.del('sc');
-    
+
     client.sadd('sa', 'a', require_number(1, name));
     client.sadd('sa', 'b', require_number(1, name));
     client.sadd('sa', 'c', require_number(1, name));
@@ -1080,12 +1118,12 @@ tests.SUNION = function () {
 
 tests.SUNIONSTORE = function () {
     var name = "SUNIONSTORE";
-    
+
     client.del('sa');
     client.del('sb');
     client.del('sc');
     client.del('foo');
-    
+
     client.sadd('sa', 'a', require_number(1, name));
     client.sadd('sa', 'b', require_number(1, name));
     client.sadd('sa', 'c', require_number(1, name));
@@ -1122,7 +1160,7 @@ tests.SORT = function () {
 
     client.del('y');
     client.del('x');
-    
+
     client.rpush('y', 'd', require_number(1, name));
     client.rpush('y', 'b', require_number(2, name));
     client.rpush('y', 'a', require_number(3, name));
@@ -1231,7 +1269,7 @@ tests.SORT = function () {
         assert.deepEqual(buffers_to_strings(values), ['foo', 'bux', 'bar', 'tux', 'baz', 'lux', 'buz', 'qux'], name);
         next(name);
     });
-    
+
     // TODO - sort by hash value
 };
 
@@ -1276,7 +1314,7 @@ tests.BLPOP = function () {
         client2.BLPOP("blocking list", 0, function (err, res) {
             assert.strictEqual("blocking list", res[0].toString());
             assert.strictEqual("initial value", res[1].toString());
-            
+
             client.rpush("blocking list", "wait for this value");
         });
         client2.BLPOP("blocking list", 0, function (err, res) {
@@ -1289,7 +1327,7 @@ tests.BLPOP = function () {
 
 tests.BLPOP_TIMEOUT = function () {
     var name = "BLPOP_TIMEOUT";
-    
+
     // try to BLPOP the list again, which should be empty.  This should timeout and return null.
     client2.BLPOP("blocking list", 1, function (err, res) {
         if (err) {
