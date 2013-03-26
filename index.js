@@ -59,7 +59,7 @@ function RedisClient(stream, options) {
     this.auth_pass = null;
     this.parser_module = null;
     this.selected_db = null;	// save the selected db here, used when reconnecting
-	
+
     var self = this;
 
     this.stream.on("connect", function () {
@@ -525,7 +525,7 @@ function reply_to_strings(reply) {
 
 RedisClient.prototype.return_reply = function (reply) {
     var command_obj, obj, i, len, type, timestamp, argindex, args, queue_len;
-    
+
     queue_len = this.command_queue.getLength();
 
     if (this.pub_sub_mode === false && queue_len === 0) {
@@ -575,10 +575,12 @@ RedisClient.prototype.return_reply = function (reply) {
                 }
                 // subscribe commands take an optional callback and also emit an event, but only the first response is included in the callback
                 // TODO - document this or fix it so it works in a more obvious way
+                // reply[1] can be null
+                var reply1String = (reply[1] === null) ? null : reply[1].toString();
                 if (command_obj && typeof command_obj.callback === "function") {
-                    try_callback(command_obj.callback, reply[1].toString());
+                    try_callback(command_obj.callback, reply1String);
                 }
-                this.emit(type, reply[1].toString(), reply[2]); // channel, count
+                this.emit(type, reply1String, reply[2]); // channel, count
             } else {
                 throw new Error("subscriptions are active but got unknown reply type " + type);
             }
@@ -662,7 +664,7 @@ RedisClient.prototype.send_command = function (command, args, callback) {
             if (!stream.writable) {
                 console.log("send command: stream is not writeable.");
             }
-            
+
             console.log("Queueing " + command + " for next server connection.");
         }
         this.offline_queue.push(command_obj);
@@ -746,7 +748,7 @@ RedisClient.prototype.send_command = function (command, args, callback) {
 
 RedisClient.prototype.pub_sub_command = function (command_obj) {
     var i, key, command, args;
-    
+
     if (this.pub_sub_mode === false && exports.debug_mode) {
         console.log("Entering pub/sub mode from " + command_obj.command);
     }
@@ -796,7 +798,7 @@ exports.Multi = Multi;
 // take 2 arrays and return the union of their elements
 function set_union(seta, setb) {
     var obj = {};
-    
+
     seta.forEach(function (val) {
         obj[val] = true;
     });
